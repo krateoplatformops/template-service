@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 
-const timeHelpers = require('../../helpers/time.helpers')
+const timeHelpers = require('../helpers/time.helpers')
 const Template = mongoose.model('Template')
 
 router.post('/', async (req, res, next) => {
