@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: template
+  labels:
+    app: krateo.io
+    component: template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: template
+  template:
+    metadata:
+      labels:
+        component: template
+    spec:
+      containers:
+        - name: template
+          image: {{ .Values.registry.images.template }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            timeoutSeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            timeoutSeconds: 5
+            periodSeconds: 30
+          env:
+            - name: 'LOG_LEVEL'
+              value: {{ .Values.log.level }}
+            - name: 'MONGODB_URI'
+              valueFrom:
+                secretKeyRef:
+                  name: krateo-secret
+                  key: MONGODB_URI
+      imagePullSecrets:
+        - name: registry-credentials

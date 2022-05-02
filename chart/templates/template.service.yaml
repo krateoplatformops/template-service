@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: template-svc
+  labels:
+    app: krateo.io
+    component: api
+spec:
+  selector:
+    component: template
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
