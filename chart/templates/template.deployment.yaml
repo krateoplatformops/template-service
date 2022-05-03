@@ -33,6 +33,9 @@ spec:
               port: 8080
             timeoutSeconds: 5
             periodSeconds: 30
+          envFrom:
+            - configMapRef:
+                name: krateo-uri-config
           env:
             - name: 'LOG_LEVEL'
               value: {{ .Values.log.level }}

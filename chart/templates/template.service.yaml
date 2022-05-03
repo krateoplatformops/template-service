@@ -4,7 +4,7 @@ metadata:
   name: template-svc
   labels:
     app: krateo.io
-    component: api
+    component: template
 spec:
   selector:
     component: template
