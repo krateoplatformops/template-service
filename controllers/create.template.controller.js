@@ -17,6 +17,7 @@ router.post('/', async (req, res, next) => {
         envConstants.GIT_URI,
         'file',
         stringHelpers.to64(req.body.url),
+        stringHelpers.to64(req.body.endpoint),
         stringHelpers.to64('template.yaml')
       ])
     )
