@@ -4,8 +4,8 @@ description: Krateo PlatformOps Template Service
 type: application
 icon: "https://github.com/krateoplatformops/community/blob/main/logos/black/icon.svg"
 
-version: 0.1.0
-appVersion: 0.1.0
+version: VERSION
+appVersion: VERSION
 
 maintainers:
   - name: Mauro Sala
