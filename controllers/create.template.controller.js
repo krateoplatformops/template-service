@@ -12,12 +12,28 @@ const Template = mongoose.model('Template')
 
 router.post('/', async (req, res, next) => {
   try {
+    // get endpoint settings
+    const endpointUrl = uriHelpers.concatUrl([
+      envConstants.ENDPOINT_URI,
+      'name',
+      req.body.endpointName
+    ])
+    const endpoint = (await axios.get(endpointUrl)).data
+    const endpointData = stringHelpers.to64(
+      JSON.stringify({
+        target: endpoint.target,
+        secret: endpoint.secret,
+        type: endpoint.type
+      })
+    )
+
+    // get template yaml
     const template = await axios.get(
       uriHelpers.concatUrl([
         envConstants.GIT_URI,
         'file',
         stringHelpers.to64(req.body.url),
-        stringHelpers.to64(req.body.endpoint),
+        endpointData,
         stringHelpers.to64('template.yaml')
       ])
     )
@@ -28,6 +44,8 @@ router.post('/', async (req, res, next) => {
       {
         $set: {
           ...y,
+          url: req.body.url,
+          endpointName: req.body.endpointName,
           createdAt: timeHelpers.currentTime()
         }
       },

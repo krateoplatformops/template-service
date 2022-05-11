@@ -8,6 +8,10 @@ const templateSchema = new Schema({
     type: String,
     required: true
   },
+  endpointName: {
+    type: String,
+    required: true
+  },
   apiVersion: {
     type: String,
     required: true
