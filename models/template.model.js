@@ -70,6 +70,16 @@ const templateSchema = new Schema({
             required: true,
             trim: true
           },
+          description: {
+            type: String,
+            required: false,
+            trim: true
+          },
+          style: {
+            type: String,
+            required: false,
+            trim: true
+          },
           properties: {
             type: Map,
             required: true
