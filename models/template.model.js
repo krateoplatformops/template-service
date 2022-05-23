@@ -75,7 +75,12 @@ const templateSchema = new Schema({
             required: false,
             trim: true
           },
-          style: {
+          box: {
+            type: String,
+            required: false,
+            trim: true
+          },
+          boxStyle: {
             type: String,
             required: false,
             trim: true
