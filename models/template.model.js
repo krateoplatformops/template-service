@@ -4,6 +4,11 @@ const Schema = mongoose.Schema
 const { dbConstants } = require('../constants')
 
 const templateSchema = new Schema({
+  package: {
+    type: Object,
+    required: true,
+    default: {}
+  },
   url: {
     type: String,
     required: true

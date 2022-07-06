@@ -3,6 +3,8 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const axios = require('axios')
 const yaml = require('js-yaml')
+const k8s = require('@kubernetes/client-node')
+const k8sHelpers = require('../helpers/k8s.helpers')
 
 const { envConstants } = require('../constants')
 const timeHelpers = require('../helpers/time.helpers')
@@ -37,7 +39,23 @@ router.post('/', async (req, res, next) => {
         stringHelpers.to64('template.yaml')
       ])
     )
-    const y = await yaml.load(template.data.content)
+    const y = yaml.load(template.data.content)
+
+    // get package
+    const package = await axios.get(
+      uriHelpers.concatUrl([
+        envConstants.GIT_URI,
+        'file',
+        stringHelpers.to64(req.body.url),
+        endpointData,
+        stringHelpers.to64('defaults/package.yaml')
+      ])
+    )
+    const pkjJson = yaml.load(package.data.content)
+    const kc = new k8s.KubeConfig()
+    kc.loadFromDefault()
+    const client = k8s.KubernetesObjectApi.makeApiClient(kc)
+    await k8sHelpers.create(client, pkjJson)
 
     const doc = await Template.findOneAndUpdate(
       { url: req.body.url },
@@ -46,7 +64,8 @@ router.post('/', async (req, res, next) => {
           ...y,
           url: req.body.url,
           endpointName: req.body.endpointName,
-          createdAt: timeHelpers.currentTime()
+          createdAt: timeHelpers.currentTime(),
+          package: pkjJson
         }
       },
       {
