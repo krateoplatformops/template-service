@@ -66,6 +66,11 @@ const templateSchema = new Schema({
     }
   },
   spec: {
+    defaults: {
+      type: Object,
+      required: false,
+      default: {}
+    },
     widgets: {
       required: true,
       type: [
