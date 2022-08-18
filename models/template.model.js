@@ -13,6 +13,14 @@ const templateSchema = new Schema({
     type: String,
     required: true
   },
+  organizationName: {
+    type: String,
+    required: true
+  },
+  repositoryName: {
+    type: String,
+    required: true
+  },
   endpointName: {
     type: String,
     required: true

@@ -11,61 +11,53 @@ const timeHelpers = require('../helpers/time.helpers')
 const stringHelpers = require('../helpers/string.helpers')
 const uriHelpers = require('../helpers/uri.helpers')
 const Template = mongoose.model('Template')
+const gitHelpers = require('../helpers/git.helpers')
+const { logger } = require('../helpers/logger.helpers')
 
 router.post('/', async (req, res, next) => {
   try {
-    // get endpoint settings
-    const endpointUrl = uriHelpers.concatUrl([
-      envConstants.ENDPOINT_URI,
-      'name',
-      req.body.endpointName
-    ])
-    const endpoint = (await axios.get(endpointUrl)).data
-    const endpointData = stringHelpers.to64(
-      JSON.stringify({
-        target: endpoint.target,
-        secret: endpoint.secret,
-        type: endpoint.type
-      })
-    )
+    const { pathList } = uriHelpers.parse(req.body.url)
 
-    // get template yaml
-    const template = await axios.get(
-      uriHelpers.concatUrl([
-        envConstants.GIT_URI,
-        'file',
-        stringHelpers.to64(req.body.url),
-        endpointData,
-        stringHelpers.to64('template.yaml')
-      ])
-    )
-    const y = yaml.load(template.data.content)
+    const payload = {
+      ...req.body,
+      org: pathList[0],
+      repo: pathList[1],
+      fileName: pathList[pathList.length - 1]
+    }
+
+    // get template
+    const templateContent = await gitHelpers.getFile(payload)
+    if (!templateContent) {
+      return res.status(404).send({ message: 'File not found' })
+    }
+    logger.debug(templateContent)
+    const template = yaml.load(templateContent)
 
     // get package
-    const package = await axios.get(
-      uriHelpers.concatUrl([
-        envConstants.GIT_URI,
-        'file',
-        stringHelpers.to64(req.body.url),
-        endpointData,
-        stringHelpers.to64('defaults/package.yaml')
-      ])
-    )
-    const pkjJson = yaml.load(package.data.content)
+    payload.fileName = 'defaults/package.yaml'
+    const packageContent = await gitHelpers.getFile(payload)
+    if (!packageContent) {
+      return res.status(404).send({ message: 'File not found' })
+    }
+    logger.debug(packageContent)
+    const package = yaml.load(packageContent)
+
     const kc = new k8s.KubeConfig()
     kc.loadFromDefault()
     const client = k8s.KubernetesObjectApi.makeApiClient(kc)
-    await k8sHelpers.create(client, pkjJson)
+    await k8sHelpers.create(client, package)
 
     const doc = await Template.findOneAndUpdate(
       { url: req.body.url },
       {
         $set: {
-          ...y,
+          ...template,
           url: req.body.url,
           endpointName: req.body.endpointName,
           createdAt: timeHelpers.currentTime(),
-          package: pkjJson
+          package,
+          organizationName: pathList[0],
+          repositoryName: pathList[1]
         }
       },
       {
