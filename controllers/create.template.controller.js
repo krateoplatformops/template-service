@@ -1,18 +1,15 @@
 const express = require('express')
 const router = express.Router()
-const mongoose = require('mongoose')
-const axios = require('axios')
 const yaml = require('js-yaml')
 const k8s = require('@kubernetes/client-node')
-const k8sHelpers = require('../helpers/k8s.helpers')
+const k8sHelpers = require('../service-library/helpers/k8s.helpers')
 
-const { envConstants } = require('../constants')
-const timeHelpers = require('../helpers/time.helpers')
-const stringHelpers = require('../helpers/string.helpers')
-const uriHelpers = require('../helpers/uri.helpers')
-const Template = mongoose.model('Template')
-const gitHelpers = require('../helpers/git.helpers')
-const { logger } = require('../helpers/logger.helpers')
+const { envConstants } = require('../service-library/constants')
+const timeHelpers = require('../service-library/helpers/time.helpers')
+const stringHelpers = require('../service-library/helpers/string.helpers')
+const uriHelpers = require('../service-library/helpers/uri.helpers')
+const gitHelpers = require('../service-library/helpers/git.helpers')
+const logger = require('../service-library/helpers/logger.helpers')
 
 router.post('/', async (req, res, next) => {
   try {
@@ -28,7 +25,7 @@ router.post('/', async (req, res, next) => {
     // get template
     const templateContent = await gitHelpers.getFile(payload)
     if (!templateContent) {
-      return res.status(404).send({ message: 'File not found' })
+      return res.status(404).send({ message: 'Template file not found' })
     }
     logger.debug(templateContent)
     const template = yaml.load(templateContent)
@@ -37,7 +34,7 @@ router.post('/', async (req, res, next) => {
     payload.fileName = 'defaults/package.yaml'
     const packageContent = await gitHelpers.getFile(payload)
     if (!packageContent) {
-      return res.status(404).send({ message: 'File not found' })
+      return res.status(404).send({ message: 'Package file not found' })
     }
     logger.debug(packageContent)
     const package = yaml.load(packageContent)
@@ -46,25 +43,8 @@ router.post('/', async (req, res, next) => {
     kc.loadFromDefault()
     const client = k8s.KubernetesObjectApi.makeApiClient(kc)
     await k8sHelpers.create(client, package)
+    const doc = await k8sHelpers.create(client, template)
 
-    const doc = await Template.findOneAndUpdate(
-      { url: req.body.url },
-      {
-        $set: {
-          ...template,
-          url: req.body.url,
-          endpointName: req.body.endpointName,
-          createdAt: timeHelpers.currentTime(),
-          package,
-          organizationName: pathList[0],
-          repositoryName: pathList[1]
-        }
-      },
-      {
-        new: true,
-        upsert: true
-      }
-    )
     res.status(200).json(doc)
   } catch (error) {
     next(error)
