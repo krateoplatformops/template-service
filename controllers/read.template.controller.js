@@ -1,34 +1,36 @@
 const express = require('express')
 const router = express.Router()
-const mongoose = require('mongoose')
-const Template = mongoose.model('Template')
+const k8sHelpers = require('../service-library/helpers/k8s.helpers')
+const { k8sConstants } = require('../constants')
 
 router.get('/', async (req, res, next) => {
   try {
-    Template.find()
-      .then((template) => {
-        res.status(200).json(template)
-      })
-      .catch((err) => {
-        next(err)
-      })
+    const list = await k8sHelpers.getList(k8sConstants.api)
+
+    res.status(200).json({ list })
   } catch (error) {
     next(error)
   }
 })
 
-router.get('/:id', async (req, res, next) => {
+router.get('/name/:name', async (req, res, next) => {
   try {
-    Template.findById(req.params.id)
-      .exec()
-      .then((template) => {
-        res.status(200).json(template)
-      })
-      .catch((err) => {
-        res.status(404).json({
-          message: `Template with id ${req.params.id} not found`
-        })
-      })
+    const list = await k8sHelpers.getSingleByName(
+      k8sConstants.api,
+      req.params.name
+    )
+
+    res.status(200).json({ list })
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/uid/:uid', async (req, res, next) => {
+  try {
+    const t = await k8sHelpers.getSingleByUid(k8sConstants.api, req.params.uid)
+
+    res.status(200).json(t)
   } catch (error) {
     next(error)
   }

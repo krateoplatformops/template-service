@@ -1,9 +1,5 @@
-const envConstants = require('./env.constants')
-const dbConstants = require('./db.constants')
-const pathConstants = require('./path.constants')
+const k8sConstants = require('./k8s.constants')
 
 module.exports = {
-  envConstants,
-  dbConstants,
-  pathConstants
+  k8sConstants
 }

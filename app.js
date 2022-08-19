@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')({ origin: true, credentials: true })
 const responseTime = require('response-time')
+require('dotenv').config()
 
 const app = express()
 app.use(cors)
@@ -15,7 +16,7 @@ const errorLoggerMiddleware = require('./service-library/middlewares/error-logge
 app.use(callLoggerMiddleware)
 
 /* Routes */
-const statusRoutes = require('./routes/status.routes')
+const statusRoutes = require('./service-library/routes/status.routes')
 const templateRoutes = require('./routes/template.routes')
 
 app.use('/', statusRoutes)
