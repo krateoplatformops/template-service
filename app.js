@@ -13,8 +13,10 @@ app.use(responseTime({ suffix: false, digits: 0 }))
 const callLoggerMiddleware = require('./service-library/middlewares/call-logger.middleware')
 const listMiddleware = require('./service-library/middlewares/list.middleware')
 const errorLoggerMiddleware = require('./service-library/middlewares/error-logger.middleware')
+const cookieIdentityMiddleware = require('./service-library/middlewares/cookie-identity.middleware')
 
 app.use(callLoggerMiddleware)
+app.use(cookieIdentityMiddleware)
 app.use(listMiddleware)
 
 /* Routes */

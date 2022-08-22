@@ -4,9 +4,6 @@ const yaml = require('js-yaml')
 const k8s = require('@kubernetes/client-node')
 const k8sHelpers = require('../service-library/helpers/k8s.helpers')
 
-const { envConstants } = require('../service-library/constants')
-const timeHelpers = require('../service-library/helpers/time.helpers')
-const stringHelpers = require('../service-library/helpers/string.helpers')
 const uriHelpers = require('../service-library/helpers/uri.helpers')
 const gitHelpers = require('../service-library/helpers/git.helpers')
 const logger = require('../service-library/helpers/logger.helpers')
@@ -29,6 +26,9 @@ router.post('/', async (req, res, next) => {
     }
     logger.debug(templateContent)
     const template = yaml.load(templateContent)
+    template.spec.url = payload.url
+    template.spec.endpointName = payload.endpointName
+    template.spec.owner = res.locals.identity.username
 
     // get package
     payload.fileName = 'defaults/package.yaml'
