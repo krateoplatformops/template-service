@@ -10,3 +10,5 @@ test.json
 empty-db.js
 test.js
 nodemon.json
+chart/*
+github/*
