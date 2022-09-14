@@ -7,6 +7,7 @@ const k8sHelpers = require('../service-library/helpers/k8s.helpers')
 const uriHelpers = require('../service-library/helpers/uri.helpers')
 const gitHelpers = require('../service-library/helpers/git.helpers')
 const logger = require('../service-library/helpers/logger.helpers')
+const responseHelpers = require('../helpers/response.helpers')
 
 router.post('/', async (req, res, next) => {
   try {
@@ -45,7 +46,7 @@ router.post('/', async (req, res, next) => {
     await k8sHelpers.create(client, package)
     const doc = await k8sHelpers.create(client, template)
 
-    res.status(200).json(doc)
+    res.status(200).json(responseHelpers.parse(doc))
   } catch (error) {
     next(error)
   }
