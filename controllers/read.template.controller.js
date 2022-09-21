@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const k8sHelpers = require('../service-library/helpers/k8s.helpers')
 const { k8sConstants } = require('../service-library/constants')
-const responseHelpers = require('../helpers/response.helpers')
+const responseHelpers = require('../service-library/helpers/response.helpers')
 
 router.get('/', async (req, res, next) => {
   try {

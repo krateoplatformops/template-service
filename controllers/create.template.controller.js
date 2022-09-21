@@ -7,7 +7,7 @@ const k8sHelpers = require('../service-library/helpers/k8s.helpers')
 const uriHelpers = require('../service-library/helpers/uri.helpers')
 const gitHelpers = require('../service-library/helpers/git.helpers')
 const logger = require('../service-library/helpers/logger.helpers')
-const responseHelpers = require('../helpers/response.helpers')
+const responseHelpers = require('../service-library/helpers/response.helpers')
 
 router.post('/', async (req, res, next) => {
   try {
@@ -32,7 +32,7 @@ router.post('/', async (req, res, next) => {
     template.spec.owner = res.locals.identity.username
 
     // get package
-    payload.fileName = 'defaults/package.yaml'
+    payload.fileName = 'package.yaml'
     const packageContent = await gitHelpers.getFile(payload)
     if (!packageContent) {
       return res.status(404).send({ message: 'Package file not found' })
@@ -46,7 +46,13 @@ router.post('/', async (req, res, next) => {
     await k8sHelpers.create(client, package)
     const doc = await k8sHelpers.create(client, template)
 
-    res.status(200).json(responseHelpers.parse(doc))
+    if (doc.statusCode && doc.statusCode !== 200) {
+      return res.status(doc.statusCode).json({ message: doc.body.message })
+    } else if (doc instanceof Error) {
+      return res.status(500).json({ message: doc.message })
+    }
+
+    res.status(doc.statusCode || 200).json(responseHelpers.parse(doc))
   } catch (error) {
     next(error)
   }
