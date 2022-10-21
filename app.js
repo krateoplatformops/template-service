@@ -2,6 +2,8 @@ const express = require('express')
 const cors = require('cors')({ origin: true, credentials: true })
 const responseTime = require('response-time')
 require('dotenv').config()
+const k8sHelpers = require('./service-library/helpers/k8s.helpers')
+k8sHelpers.init()
 
 const app = express()
 app.use(cors)
