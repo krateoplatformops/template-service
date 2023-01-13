@@ -14,7 +14,7 @@ router.post('/', async (req, res, next) => {
   try {
     const { pathList } = uriHelpers.parse(req.body.url)
 
-    const endpoint = await secretHelpers.getEndpoint(endpointName)
+    const endpoint = await secretHelpers.getEndpoint(req.body.endpointName)
     logger.debug(endpoint)
 
     if (!endpoint) {
