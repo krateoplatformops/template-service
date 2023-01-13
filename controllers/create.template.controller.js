@@ -8,16 +8,39 @@ const uriHelpers = require('../service-library/helpers/uri.helpers')
 const gitHelpers = require('../service-library/helpers/git.helpers')
 const logger = require('../service-library/helpers/logger.helpers')
 const responseHelpers = require('../service-library/helpers/response.helpers')
+const secretHelpers = require('../service-library/helpers/secret.helpers')
 
 router.post('/', async (req, res, next) => {
   try {
     const { pathList } = uriHelpers.parse(req.body.url)
 
-    const payload = {
-      ...req.body,
-      org: pathList[0],
-      repo: pathList[1],
-      fileName: pathList[pathList.length - 1]
+    const endpoint = await secretHelpers.getEndpoint(endpointName)
+    logger.debug(endpoint)
+
+    if (!endpoint) {
+      return res.status(404).send({ message: 'Endpoint not found' })
+    }
+
+    let payload = {}
+    switch (endpoint.metadata.type) {
+      case 'github':
+        payload = {
+          ...req.body,
+          org: pathList[0],
+          repo: pathList[1],
+          fileName: pathList[pathList.length - 1]
+        }
+        break
+      case 'bitbucket':
+        payload = {
+          ...req.body,
+          org: pathList[1],
+          repo: pathList[3],
+          fileName: pathList[pathList.length - 1]
+        }
+        break
+      default:
+        throw new Error(`Unsupported endpoint ${endpointName}`)
     }
 
     // get template
