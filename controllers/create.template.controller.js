@@ -26,21 +26,28 @@ router.post('/', async (req, res, next) => {
       case 'github':
         payload = {
           ...req.body,
-          org: pathList[0],
-          repo: pathList[1],
+          path: [pathList[0], pathList[1]],
           fileName: pathList[pathList.length - 1]
         }
         break
       case 'bitbucket':
         payload = {
           ...req.body,
-          org: pathList[1],
-          repo: pathList[3],
+          path: [pathList[1], pathList[3]],
           fileName: pathList[pathList.length - 1]
         }
         break
+      case 'azuredevops':
+        const url = new URL(req.body.url)
+        const params = new URLSearchParams(url.search)
+        payload = {
+          ...req.body,
+          path: [pathList[0], pathList[1], pathList[3].split('?')[0]],
+          fileName: params.get('path')
+        }
+        break
       default:
-        throw new Error(`Unsupported endpoint ${endpointName}`)
+        throw new Error(`Unsupported endpoint type ${endpoint.metadata.type}`)
     }
 
     // get template
