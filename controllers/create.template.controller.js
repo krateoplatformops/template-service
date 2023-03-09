@@ -13,6 +13,7 @@ const secretHelpers = require('../service-library/helpers/secret.helpers')
 router.post('/', async (req, res, next) => {
   try {
     const { pathList } = uriHelpers.parse(req.body.url)
+    logger.debug(pathList)
 
     const endpoint = await secretHelpers.getEndpoint(req.body.endpointName)
     logger.debug(endpoint)
@@ -49,6 +50,7 @@ router.post('/', async (req, res, next) => {
       default:
         throw new Error(`Unsupported endpoint type ${endpoint.metadata.type}`)
     }
+    logger.debug(payload)
 
     // get template
     const templateContent = await gitHelpers.getFile(payload)
