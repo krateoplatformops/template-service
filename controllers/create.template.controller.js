@@ -31,7 +31,7 @@ router.post('/', async (req, res, next) => {
 
     logger.debug('<- endpoint.metadata.type')
     logger.debug(JSON.stringify(endpoint.metadata.type))
-    logger.debug('<- endpoint.metadata.type')    
+    logger.debug('<- endpoint.metadata.type')
 
     let payload = {}
     switch (endpoint.metadata.type) {
@@ -61,14 +61,21 @@ router.post('/', async (req, res, next) => {
       default:
         throw new Error(`Unsupported endpoint type ${endpoint.metadata.type}`)
     }
-    logger.debug(payload)
+
+    logger.debug('<- payload')
+    logger.debug(JSON.stringify(payload))
+    logger.debug('<- payload')
 
     // get template
     const templateContent = await gitHelpers.getFile(payload)
     if (!templateContent) {
       return res.status(404).send({ message: 'Template file not found' })
     }
-    logger.debug(templateContent)
+
+    logger.debug('<- templateContent')
+    logger.debug(JSON.stringify(templateContent))
+    logger.debug('<- templateContent')
+
     const template = yaml.load(templateContent)
     template.spec.url = payload.url
     template.spec.endpointName = payload.endpointName
