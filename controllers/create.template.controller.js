@@ -13,14 +13,25 @@ const secretHelpers = require('../service-library/helpers/secret.helpers')
 router.post('/', async (req, res, next) => {
   try {
     const { pathList } = uriHelpers.parse(req.body.url)
-    logger.debug(pathList)
+
+    logger.debug('<- pathList')
+    logger.debug(JSON.stringify(pathList))
+    logger.debug('<- pathList')
 
     const endpoint = await secretHelpers.getEndpoint(req.body.endpointName)
     logger.debug(endpoint)
 
+    logger.debug('<- endpoint')
+    logger.debug(JSON.stringify(endpoint))
+    logger.debug('<- endpoint')
+
     if (!endpoint) {
       return res.status(404).send({ message: 'Endpoint not found' })
     }
+
+    logger.debug('<- endpoint.metadata.type')
+    logger.debug(JSON.stringify(endpoint.metadata.type))
+    logger.debug('<- endpoint.metadata.type')    
 
     let payload = {}
     switch (endpoint.metadata.type) {
