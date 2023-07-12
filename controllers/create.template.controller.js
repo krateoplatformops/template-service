@@ -58,6 +58,19 @@ router.post('/', async (req, res, next) => {
           fileName: params.get('path')
         }
         break
+      case 'gitlab':
+        const params = new URLSearchParams(url.search)
+
+        logger.debug('<- params')
+        logger.debug(JSON.stringify(params))
+        logger.debug('<- params')
+
+        payload = {
+          ...req.body,
+          path: [pathList[0], pathList[1], pathList[3].split('?')[0]],
+          fileName: params.get('path')
+        }
+        break
       default:
         throw new Error(`Unsupported endpoint type ${endpoint.metadata.type}`)
     }
