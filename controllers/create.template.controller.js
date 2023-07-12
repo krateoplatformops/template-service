@@ -12,6 +12,11 @@ const secretHelpers = require('../service-library/helpers/secret.helpers')
 
 router.post('/', async (req, res, next) => {
   try {
+
+    logger.debug('<- req.body.url')
+    logger.debug(JSON.stringify(req.body.url))
+    logger.debug('<- req.body.url')
+
     const { pathList } = uriHelpers.parse(req.body.url)
 
     logger.debug('<- pathList')
@@ -19,7 +24,6 @@ router.post('/', async (req, res, next) => {
     logger.debug('<- pathList')
 
     const endpoint = await secretHelpers.getEndpoint(req.body.endpointName)
-    logger.debug(endpoint)
 
     logger.debug('<- endpoint')
     logger.debug(JSON.stringify(endpoint))
@@ -34,6 +38,9 @@ router.post('/', async (req, res, next) => {
     logger.debug('<- endpoint.metadata.type')
 
     let payload = {}
+    let params = null
+    let url = null
+
     switch (endpoint.metadata.type) {
       case 'github':
         payload = {
@@ -50,8 +57,18 @@ router.post('/', async (req, res, next) => {
         }
         break
       case 'azuredevops':
-        const url = new URL(req.body.url)
-        const params = new URLSearchParams(url.search)
+        url = new URL(req.body.url)
+
+        logger.debug('<- url')
+        logger.debug(JSON.stringify(url))
+        logger.debug('<- url')
+
+        params = new URLSearchParams(url.search)
+
+        logger.debug('<- params')
+        logger.debug(JSON.stringify(params))
+        logger.debug('<- params')
+
         payload = {
           ...req.body,
           path: [pathList[0], pathList[1], pathList[3].split('?')[0]],
@@ -59,7 +76,13 @@ router.post('/', async (req, res, next) => {
         }
         break
       case 'gitlab':
-        const params = new URLSearchParams(url.search)
+        url = new URL(req.body.url)
+
+        logger.debug('<- url')
+        logger.debug(JSON.stringify(url))
+        logger.debug('<- url')
+
+        params = new URLSearchParams(url.search)
 
         logger.debug('<- params')
         logger.debug(JSON.stringify(params))
