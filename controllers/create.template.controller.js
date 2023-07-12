@@ -76,22 +76,19 @@ router.post('/', async (req, res, next) => {
         }
         break
       case 'gitlab':
-        url = new URL(req.body.url)
 
-        logger.debug('<- url')
-        logger.debug(JSON.stringify(url))
-        logger.debug('<- url')
+        logger.debug('<- pathList.slice(0, -1)')
+        logger.debug(JSON.stringify(pathList.slice(0, -1)))
+        logger.debug('<- pathList.slice(0, -1)')
 
-        params = new URLSearchParams(url.search)
-
-        logger.debug('<- params')
-        logger.debug(JSON.stringify(params))
-        logger.debug('<- params')
+        logger.debug('<- pathList[pathList.length-1]')
+        logger.debug(JSON.stringify(pathList[pathList.length-1]))
+        logger.debug('<- pathList[pathList.length-1]')
 
         payload = {
           ...req.body,
-          path: [pathList[0], pathList[1], pathList[3].split('?')[0]],
-          fileName: params.get('path')
+          path: pathList.slice(0, -1),
+          fileName: pathList[pathList.length-1]
         }
         break
       default:
